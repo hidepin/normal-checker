@@ -25,14 +25,23 @@ def chk_only_utf8(filepath):
     return True
 
 def chk_newline(filepath):
-    new_line_regex = re.compile(r'\r')
+    regex = re.compile(r'\r')
     with open(filepath, "rb") as f:
-        if new_line_regex.search(f.read()):
+        if regex.search(f.read()):
             print(filepath + ": newline error")
             return False
     return True
 
+def chk_fullwidthspace(filepath):
+    regex = re.compile(r'　')
+    with open(filepath, "rb") as f:
+        if regex.search(f.read()):
+            print(filepath + ": fullwidth space error")
+            return False
+    return True
+
 if __name__ == '__main__':
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--path', default=os.path.relpath(os.getcwd()), help='search path')
     args = parser.parse_args()
@@ -41,7 +50,7 @@ if __name__ == '__main__':
     for foldername, subfolders, filenames in os.walk(args.path):
         for filename in sorted(filenames):
             filepath = os.path.join(foldername, filename)
-            if is_target(filepath) and \
-               chk_only_utf8(filepath) and \
-               chk_newline(filepath):
-                break
+            if is_target(filepath):
+                chk_only_utf8(filepath)
+                chk_newline(filepath)
+                chk_fullwidthspace(filepath)
