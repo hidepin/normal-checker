@@ -10,6 +10,14 @@ ignore_list = [
     '.git',
     ]
 
+def regex_check(filepath, regex, message):
+    regex = re.compile(regex)
+    with open(filepath, "rb") as f:
+        if regex.search(f.read()):
+            print(filepath + ": " + message)
+            return False
+    return True
+
 def is_target(path):
     result=True
     for ignore in ignore_list:
@@ -21,24 +29,12 @@ def chk_only_utf8(filepath):
     with open(filepath, "rb") as f:
         if not chardet.detect(f.read())['encoding'] in ['utf-8', 'ascii']:
             print(filepath + ": Encoding error")
-            return False
-    return True
 
 def chk_newline(filepath):
-    regex = re.compile(r'\r')
-    with open(filepath, "rb") as f:
-        if regex.search(f.read()):
-            print(filepath + ": newline error")
-            return False
-    return True
+    regex_check(filepath, r'\r', "newline error")
 
 def chk_fullwidthspace(filepath):
-    regex = re.compile(r'　')
-    with open(filepath, "rb") as f:
-        if regex.search(f.read()):
-            print(filepath + ": fullwidth space error")
-            return False
-    return True
+    regex_check(filepath, r'　', "newline error")
 
 if __name__ == '__main__':
 
