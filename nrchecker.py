@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import os
 import chardet
-
+import os
+import re
 
 ignore_list = [
     '.git',
@@ -24,6 +24,14 @@ def chk_only_utf8(filepath):
             return False
     return True
 
+def chk_newline(filepath):
+    new_line_regex = re.compile(r'\r')
+    with open(filepath, "rb") as f:
+        if new_line_regex.search(f.read()):
+            print(filepath + ": newline error")
+            return False
+    return True
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--path', default=os.path.relpath(os.getcwd()), help='search path')
@@ -31,7 +39,9 @@ if __name__ == '__main__':
     search_path = args.path
 
     for foldername, subfolders, filenames in os.walk(args.path):
-        for filename in filenames:
+        for filename in sorted(filenames):
             filepath = os.path.join(foldername, filename)
-            if is_target(filepath) and not chk_only_utf8(filepath):
+            if is_target(filepath) and \
+               chk_only_utf8(filepath) and \
+               chk_newline(filepath):
                 break
